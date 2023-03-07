@@ -4,57 +4,55 @@ session_start();
 
 // On inclue le fichier de configuration et de connexion a la base de donnees
 include('includes/config.php');
+include('includes/function-library.php');
 
 error_log(print_r($_SESSION, 1));
 
 // On invalide le cache de session
 if (isset($_SESSION['login']) && $_SESSION['login'] != '') {
-	$_SESSION['login'] = '';
+    $_SESSION['login'] = '';
 }
 
 if (TRUE === isset($_POST['login'])) {
-	// Après la soumission du formulaire de login ($_POST['login'] existe - voir pourquoi plus bas)
-	// On verifie si le code captcha est correct en comparant ce que l'utilisateur a saisi dans le formulaire
-	// $_POST["vercode"] et la valeur initialisee $_SESSION["vercode"] lors de l'appel a captcha.php (voir plus bas)
-	if ($_POST['vercode'] != $_SESSION['vercode']) {
-		// Le code est incorrect on informe l'utilisateur par une fenetre pop_up
-		echo "<script>alert('Code de vérification incorrect')</script>";
-	} else {
-		// Le code est correct, on peut continuer
-		// On recupere le mail de l'utilisateur saisi dans le formulaire
-		$mail = $_POST['emailid'];
-		// On recupere le mot de passe saisi par l'utilisateur et on le crypte (fonction md5)
-		$password = md5($_POST['password']);
-		// On construit la requete SQL pour recuperer l'id, le readerId et l'email du lecteur � partir des deux variables ci-dessus
-		// dans la table tblreaders
-		$sql = "SELECT EmailId, Password, ReaderId, Status FROM tblreaders  WHERE EmailId = :email AND Password = :password";
-		$query = $dbh->prepare($sql);
-		$query->bindParam(':email', $mail, PDO::PARAM_STR);
-		$query->bindParam(':password', $password, PDO::PARAM_STR);
-		// On execute la requete
-		$query->execute();
-		// On stocke le resultat de recherche dans une variable $result
-		$result = $query->fetch(PDO::FETCH_OBJ);
+    // Après la soumission du formulaire de login ($_POST['login'] existe - voir pourquoi plus bas)
+    // On verifie si le code captcha est correct en comparant ce que l'utilisateur a saisi dans le formulaire
+    // $_POST["vercode"] et la valeur initialisee $_SESSION["vercode"] lors de l'appel a captcha.php (voir plus bas)
+    if ($_POST['vercode'] != $_SESSION['vercode']) {
+        // Le code est incorrect on informe l'utilisateur par une fenetre pop_up
+        echo "<script>alert('Code de vérification incorrect')</script>";
+    } else {
+        // Le code est correct, on peut continuer
+        // On recupere le mail de l'utilisateur saisi dans le formulaire
+        $mail = $_POST['emailid'];
+        // On construit la requete SQL pour recuperer l'id, le readerId et l'email du lecteur � partir des deux variables ci-dessus
+        // dans la table tblreaders
+        $sql = "SELECT EmailId, Password, ReaderId, Status FROM tblreaders  WHERE EmailId = :email";
+        $query = $dbh->prepare($sql);
+        $query->bindParam(':email', $mail, PDO::PARAM_STR);
+        // On execute la requete
+        $query->execute();
+        // On stocke le resultat de recherche dans une variable $result
+        $result = $query->fetch(PDO::FETCH_OBJ);
 
-		if (!empty($result)) {
-			// Si le resultat de recherche n'est pas vide
-			// On stocke l'identifiant du lecteur (ReaderId) dans $_SESSION['rdid']
-			$_SESSION['rdid'] = $result->ReaderId;
+        if (!empty($result)) {
+            // Si le resultat de recherche n'est pas vide
+            // On stocke l'identifiant du lecteur (ReaderId) dans $_SESSION['rdid']
+            $_SESSION['rdid'] = $result->ReaderId;
 
-			if ($result->Status == 1) {
-				// Si le statut du lecteur est actif (egal a 1)
-				// On stocke l'email du lecteur dans $_SESSION['login']
-				$_SESSION['login'] = $_POST['emailid'];
-				// l'utilisateur est redirige vers dashboard.php
-				header('location:dashboard.php');
-			} else {
-				// Sinon le compte du lecteur a ete bloque. On informe l'utilisateur par un popu
-				echo "<script>alert('Votre compte à été bloqué')</script>";
-			}
-		} else {
-			echo "<script>alert('Utilisateur inconnu')</script>";
-		}
-	}
+            if ($result->Status == 1) {
+                // Si le statut du lecteur est actif (egal a 1)
+                // On stocke l'email du lecteur dans $_SESSION['login']
+                $_SESSION['login'] = $_POST['emailid'];
+                // l'utilisateur est redirige vers dashboard.php
+                header('location:dashboard.php');
+            } else {
+                // Sinon le compte du lecteur a ete bloque. On informe l'utilisateur par un popu
+                echo "<script>alert('Votre compte à été bloqué')</script>";
+            }
+        } else {
+            echo "<script>alert('Utilisateur inconnu')</script>";
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -101,12 +99,10 @@ if (TRUE === isset($_POST['login'])) {
 
                     <div class="form-group">
                         <label>Code de vérification</label>
-                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img
-                            src="captcha.php">
+                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img src="captcha.php">
                     </div>
 
-                    <button type="submit" name="login" class="btn btn-info">LOGIN</button>&nbsp;&nbsp;&nbsp;<a
-                        href="signup.php">Je n'ai pas de compte</a>
+                    <button type="submit" name="login" class="btn btn-info">LOGIN</button>&nbsp;&nbsp;&nbsp;<a href="signup.php">Je n'ai pas de compte</a>
                 </form>
             </div>
         </div>

@@ -1,68 +1,109 @@
 <?php
+
 // On récupère la session courante
 session_start();
-$currentUserId = file_get_contents('readerid.txt');
 
-echo $currentUserId;
-echo "<br>";
-$currentNumber = strval(intval(substr($currentUserId, 3))+1);
-echo $currentNumber;
-echo "<br>";
-if (strlen($currentNumber)==1){
-    $currentNumber = "00".$currentNumber;
-}else if(strlen($currentNumber)==2){
-    $currentNumber = "0".$currentNumber;
-}
-$newID="SID".($currentNumber);
-echo $newID;
+//file_put_contents('readerid.txt', $newID);
 // On inclue le fichier de configuration et de connexion à la base de données
 include('includes/config.php');
-
+include('includes/function-library.php');
 // Après la soumission du formulaire de compte (plus bas dans ce fichier)
 // On vérifie si le code captcha est correct en comparant ce que l'utilisateur a saisi dans le formulaire
 // $_POST["vercode"] et la valeur initialisée $_SESSION["vercode"] lors de l'appel à captcha.php (voir plus bas)
-if (isset($_POST["vercode"])){
-if(!$_POST["vercode"]==$_SESSION["vercode"]){
-    echo "<script>alert('Code de vérification incorrect')</script>";
+if (isset($_POST["vercode"])) {
+    if (!$_POST["vercode"] == $_SESSION["vercode"]) {
+        echo "<script>alert('Code de vérification incorrect')</script>";
+    } else {
 
-//On lit le contenu du fichier readerid.txt au moyen de la fonction 'file'. Ce fichier contient le dernier identifiant lecteur cree.
-$currentUserId = file_get_contents('readerid.txt');
-$currentNumber = strval(intval(substr($currentUserId, 3))+1);
-if (strlen($currentNumber)==1){
-    $currentNumber = "00".$currentNumber;
-}else if(strlen($currentNumber)==2){
-    $currentNumber = "0".$currentNumber;
+        if (
+            areValuesSet($_POST['name'], $_POST['phone'], $_POST['email'], $_POST['password']) &&
+            areValuesNotEmpty($_POST['name'], $_POST['phone'], $_POST['email'], $_POST['password'])
+        ) {
+
+            try {
+                //On lit le contenu du fichier readerid.txt au moyen de la fonction 'file'. Ce fichier contient le dernier identifiant lecteur cree.
+
+                // On incrémente de 1 la valeur lue
+
+                // On ouvre le fichier readerid.txt en écriture
+
+                // On écrit dans ce fichier la nouvelle valeur
+
+                // On referme le fichier
+
+                // On récupère le nom saisi par le lecteur
+
+                $currentUserId = file_get_contents('readerid.txt');
+                $currentNumber = strval(intval(substr($currentUserId, 3)) + 1);
+                if (strlen($currentNumber) == 1) {
+                    $currentNumber = "00" . $currentNumber;
+                } else if (strlen($currentNumber) == 2) {
+                    $currentNumber = "0" . $currentNumber;
+                }
+                $newID = "SID" . ($currentNumber);
+                file_put_contents('readerid.txt', $newID);
+
+
+                $newUserName = $_POST['name'];
+
+                // On récupère le numéro de portable
+                $newUserPhone = $_POST['phone'];
+
+                // On récupère l'email
+                $newUserEmail = $_POST['email'];
+
+                // On récupère le mot de passe
+                $newUserPass = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+                // On fixe le statut du lecteur à 1 par défaut (actif)
+                $newUserStatus = 1;
+
+                // On prépare la requete d'insertion en base de données de toutes ces valeurs dans la table tblreaders
+
+                $sqlRequest = "INSERT INTO tblreaders (ReaderId, FullName, EmailId, MobileNumber, Password, Status)
+                Values (:id, :name, :email, :phone, :pass, :status)";
+                $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $statement = $dbh->prepare($sqlRequest);
+                $statement->bindParam(':id', $newID);
+                $statement->bindParam(':name', $newUserName);
+                $statement->bindParam(':email', $newUserEmail);
+                $statement->bindParam(':phone', $newUserPhone);
+                $statement->bindParam(':pass', $newUserPass);
+                $statement->bindParam(':status', $newUserStatus);
+                // On éxecute la requete
+                $statement->execute();
+                $dbLastId = lastInsertId($dbh);
+                if ($newID == $dbLastId) {
+                    echo "<script>alert('dernier ID créé : " . $newID . "');</script>";
+                } else {
+
+                    echo 'error : ' . $newID;
+                }
+
+                //header('location:index.php');
+            } catch (PDOException $e) {
+                echo "error on insert :" . $e->getMessage();
+            }
+        }
+    }
 }
 
-$newID="SID".($currentNumber);
-}
 
-
-
-}
-// On incrémente de 1 la valeur lue
-
-// On ouvre le fichier readerid.txt en écriture
-
-// On écrit dans ce fichier la nouvelle valeur
-
-// On referme le fichier
-
-// On récupère le nom saisi par le lecteur
-
-// On récupère le numéro de portable
-
-// On récupère l'email
-
-// On récupère le mot de passe
-
-// On fixe le statut du lecteur à 1 par défaut (actif)
-
-// On prépare la requete d'insertion en base de données de toutes ces valeurs dans la table tblreaders
-
-// On éxecute la requete
 
 // On récupère le dernier id inséré en bd (fonction lastInsertId)
+function lastInsertId($dbCo)
+{
+    try {
+        $sqlRequest = "SELECT ReaderId FROM tblreaders order by RegDate DESC limit 1";
+        $dbCo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $statement = $dbCo->prepare("$sqlRequest");
+        $statement->execute();
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $result[0]['ReaderId'];
+    } catch (PDOException $e) {
+        return false;
+    }
+}
 
 // Si ce dernier id existe, on affiche dans une pop-up que l'opération s'est bien déroulée, et on affiche l'identifiant lecteur (valeur de $hit[0])
 
@@ -88,19 +129,22 @@ $newID="SID".($currentNumber);
     <!-- GOOGLE FONT -->
     <!-- link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' / -->
     <script type="text/javascript">
-    // On cree une fonction valid() sans paramètre qui renvoie 
-    // TRUE si les mots de passe saisis dans le formulaire sont identiques
-    // FALSE sinon
-    const passField = document.getElementById("password");
-    const passFieldConfirm = document.getElementById("passwordConfirm");
+        // On cree une fonction valid() sans paramètre qui renvoie 
+        // TRUE si les mots de passe saisis dans le formulaire sont identiques
+        // FALSE sinon
+        const passField = document.getElementById("password");
+        const passFieldConfirm = document.getElementById("passwordConfirm");
 
-    function valid() {
-        return (passField.value == passFieldConfirm.value ? true : false);
-    }
+        function valid() {
+            return (passField.value == passFieldConfirm.value ? true : false);
+        }
 
-    // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email
+        // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email
 
-    // Cette fonction effectue un appel AJAX vers check_availability.php
+        // Cette fonction effectue un appel AJAX vers check_availability.php
+        function isEmailTaken(email) {
+            const request = fetch()
+        }
     </script>
 </head>
 
@@ -116,7 +160,7 @@ $newID="SID".($currentNumber);
         </div>
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-md-6 col-lg-8 offset-md-3">
-                <form method="post" action="index.php">
+                <form method="post" action="signup.php">
                     <div class="form-group">
                         <label>Entrez votre nom complet</label>
                         <input type="text" name="name" required>
@@ -142,8 +186,7 @@ $newID="SID".($currentNumber);
 
                     <div class="form-group">
                         <label>Code de vérification</label>
-                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img
-                            src="captcha.php">
+                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img src="captcha.php">
                     </div>
 
                     <button type="submit" name="register" class="btn btn-info">Enregistrer</button>
