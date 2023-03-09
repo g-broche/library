@@ -41,7 +41,7 @@ if (isset($_POST["vercode"])) {
                     $currentNumber = "0" . $currentNumber;
                 }
                 $newID = "SID" . ($currentNumber);
-                file_put_contents('readerid.txt', $newID);
+
 
 
                 $newUserName = $_POST['name'];
@@ -72,23 +72,19 @@ if (isset($_POST["vercode"])) {
                 $statement->bindParam(':status', $newUserStatus);
                 // On éxecute la requete
                 $statement->execute();
+
                 $dbLastId = lastInsertId($dbh);
                 if ($newID == $dbLastId) {
-                    echo "<script>alert('dernier ID créé : " . $newID . "');</script>";
-                } else {
-
-                    echo 'error : ' . $newID;
+                    file_put_contents('readerid.txt', $newID);
+                    echo "<script>alert('dernier ID créé : '" . $newID . "');</script>";
                 }
 
                 //header('location:index.php');
             } catch (PDOException $e) {
-                echo "error on insert :" . $e->getMessage();
             }
         }
     }
 }
-
-
 
 // On récupère le dernier id inséré en bd (fonction lastInsertId)
 function lastInsertId($dbCo)
@@ -128,24 +124,7 @@ function lastInsertId($dbCo)
     <link href="assets/css/style.css" rel="stylesheet" />
     <!-- GOOGLE FONT -->
     <!-- link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' / -->
-    <script type="text/javascript">
-        // On cree une fonction valid() sans paramètre qui renvoie 
-        // TRUE si les mots de passe saisis dans le formulaire sont identiques
-        // FALSE sinon
-        const passField = document.getElementById("password");
-        const passFieldConfirm = document.getElementById("passwordConfirm");
 
-        function valid() {
-            return (passField.value == passFieldConfirm.value ? true : false);
-        }
-
-        // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email
-
-        // Cette fonction effectue un appel AJAX vers check_availability.php
-        function isEmailTaken(email) {
-            const request = fetch()
-        }
-    </script>
 </head>
 
 <body>
@@ -171,7 +150,7 @@ function lastInsertId($dbCo)
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" name="email" required>
+                        <input id="emailField" type="email" name="email" required>
                     </div>
 
                     <div class="form-group">
@@ -189,7 +168,7 @@ function lastInsertId($dbCo)
                         <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img src="captcha.php">
                     </div>
 
-                    <button type="submit" name="register" class="btn btn-info">Enregistrer</button>
+                    <button id="submitBTN" type="submit" name="register" class="btn btn-info">Enregistrer</button>
                 </form>
             </div>
         </div>
@@ -204,6 +183,73 @@ function lastInsertId($dbCo)
     <?php include('includes/footer.php'); ?>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src='js-library.js'></script>
+
+    <script type="text/javascript">
+        // On cree une fonction valid() sans paramètre qui renvoie 
+        // TRUE si les mots de passe saisis dans le formulaire sont identiques
+        // FALSE sinon
+
+        const form = document.querySelector("form");
+        const emailField = document.getElementById("emailField");
+        const passField = document.getElementById("password");
+        const passFieldConfirm = document.getElementById("passwordConfirm");
+        const buttonSubmit = document.getElementById("submitBTN");
+        let passIsValid = false;
+        let emailIsvalid = false;
+
+        /*form.addEventListener("submit", function(event) {
+            event.preventDefault()
+        });*/
+        form.addEventListener("submit", function(event) {
+            event.preventDefault()
+        });
+
+        passField.addEventListener('input', debounce(50, valid, enableSubmitButton));
+        passFieldConfirm.addEventListener('input', debounce(50, valid, enableSubmitButton));
+        emailField.addEventListener('input', debounce(500, valid, isEmailFree, enableSubmitButton));
+
+        buttonSubmit.addEventListener('click', () => {
+            if (passIsValid && emailIsvalid) {
+                form.submit()
+            };
+        })
+
+        function enableSubmitButton() {
+            if (passIsValid && emailIsvalid) {
+                buttonSubmit.disabled = false;
+            } else {
+                buttonSubmit.disabled = true;
+            }
+        }
+
+        function valid() {
+            if (passField.value == passFieldConfirm.value && passField.value.length > 5) {
+                passIsValid = true;
+            } else {
+                passIsValid = false;
+            }
+        }
+
+        // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email
+
+        // Cette fonction effectue un appel AJAX vers check_availability.php
+        async function isEmailFree() {
+            try {
+                let response = await fetch('check_availability.php?inputedEmail=' + emailField.value);
+                let data = await response.json();
+                if (data['status'] == 0) {
+                    emailIsvalid = true;
+                } else if (data['status'] == -1) {
+                    alert('error linking with database');
+                } else {
+                    emailIsvalid = false;
+                }
+            } catch (err) {
+                alert(err);
+            }
+        }
+    </script>
 </body>
 
 </html>
