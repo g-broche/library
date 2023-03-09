@@ -11,3 +11,23 @@ function debounce(waitTime, ...funcs) {
         }, waitTime);
     }
 }
+
+function valid(passField, passFieldConfirm) {
+    if (passField.value == passFieldConfirm.value && passField.value.length > 5) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function enableSubmitButton(button, ...booleans) {
+    let mustEnable = true;
+    booleans.forEach(element => {
+        if (element == false) { mustEnable = false }
+    })
+    if (mustEnable) {
+        button.disabled = false;
+    } else {
+        button.disabled = true;
+    }
+}

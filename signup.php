@@ -76,10 +76,8 @@ if (isset($_POST["vercode"])) {
                 $dbLastId = lastInsertId($dbh);
                 if ($newID == $dbLastId) {
                     file_put_contents('readerid.txt', $newID);
-                    echo "<script>alert('dernier ID créé : '" . $newID . "');</script>";
+                    header('location:index.php');
                 }
-
-                //header('location:index.php');
             } catch (PDOException $e) {
             }
         }
@@ -165,7 +163,8 @@ function lastInsertId($dbCo)
 
                     <div class="form-group">
                         <label>Code de vérification</label>
-                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img
+                            src="captcha.php">
                     </div>
 
                     <button id="submitBTN" type="submit" name="register" class="btn btn-info">Enregistrer</button>
@@ -186,69 +185,72 @@ function lastInsertId($dbCo)
     <script src='js-library.js'></script>
 
     <script type="text/javascript">
-        // On cree une fonction valid() sans paramètre qui renvoie 
-        // TRUE si les mots de passe saisis dans le formulaire sont identiques
-        // FALSE sinon
+    // On cree une fonction valid() sans paramètre qui renvoie 
+    // TRUE si les mots de passe saisis dans le formulaire sont identiques
+    // FALSE sinon
 
-        const form = document.querySelector("form");
-        const emailField = document.getElementById("emailField");
-        const passField = document.getElementById("password");
-        const passFieldConfirm = document.getElementById("passwordConfirm");
-        const buttonSubmit = document.getElementById("submitBTN");
-        let passIsValid = false;
-        let emailIsvalid = false;
+    const form = document.querySelector("form");
+    const emailField = document.getElementById("emailField");
+    const passField = document.getElementById("password");
+    const passFieldConfirm = document.getElementById("passwordConfirm");
+    const buttonSubmit = document.getElementById("submitBTN");
+    let passIsValid = false;
+    let emailIsvalid = false;
 
-        /*form.addEventListener("submit", function(event) {
-            event.preventDefault()
-        });*/
-        form.addEventListener("submit", function(event) {
-            event.preventDefault()
-        });
+    form.addEventListener("submit", function(event) {
+        event.preventDefault()
+    });
 
-        passField.addEventListener('input', debounce(50, valid, enableSubmitButton));
-        passFieldConfirm.addEventListener('input', debounce(50, valid, enableSubmitButton));
-        emailField.addEventListener('input', debounce(500, valid, isEmailFree, enableSubmitButton));
+    passField.addEventListener('input', debounce(100, () => {
+        passIsValid = valid(passField, passFieldConfirm)
+    }, () => {
+        enableSubmitButton(buttonSubmit, passIsValid, emailIsvalid)
+    }));
 
-        buttonSubmit.addEventListener('click', () => {
-            if (passIsValid && emailIsvalid) {
-                form.submit()
-            };
-        })
+    passFieldConfirm.addEventListener('input', debounce(100, () => {
+        passIsValid = valid(passField, passFieldConfirm)
+    }, () => {
+        enableSubmitButton(buttonSubmit, passIsValid, emailIsvalid)
+    }));
 
-        function enableSubmitButton() {
-            if (passIsValid && emailIsvalid) {
-                buttonSubmit.disabled = false;
+    emailField.addEventListener('input', debounce(500, () => {
+        passIsValid = valid(passField, passFieldConfirm)
+    }, isEmailFree, () => {
+        enableSubmitButton(buttonSubmit, passIsValid, emailIsvalid)
+    }));
+
+    buttonSubmit.addEventListener('click', () => {
+        if (passIsValid && emailIsvalid) {
+            form.submit()
+        };
+    })
+
+    // function enableSubmitButton() {
+    //     if (passIsValid && emailIsvalid) {
+    //         buttonSubmit.disabled = false;
+    //     } else {
+    //         buttonSubmit.disabled = true;
+    //     }
+    // }
+
+    // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email (=> in js-library)
+
+    // Cette fonction effectue un appel AJAX vers check_availability.php
+    async function isEmailFree() {
+        try {
+            let response = await fetch('check_availability.php?inputedEmail=' + emailField.value);
+            let data = await response.json();
+            if (data['status'] == 0) {
+                emailIsvalid = true;
+            } else if (data['status'] == -1) {
+                alert('error linking with database');
             } else {
-                buttonSubmit.disabled = true;
+                emailIsvalid = false;
             }
+        } catch (err) {
+            alert(err);
         }
-
-        function valid() {
-            if (passField.value == passFieldConfirm.value && passField.value.length > 5) {
-                passIsValid = true;
-            } else {
-                passIsValid = false;
-            }
-        }
-
-        // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email
-
-        // Cette fonction effectue un appel AJAX vers check_availability.php
-        async function isEmailFree() {
-            try {
-                let response = await fetch('check_availability.php?inputedEmail=' + emailField.value);
-                let data = await response.json();
-                if (data['status'] == 0) {
-                    emailIsvalid = true;
-                } else if (data['status'] == -1) {
-                    alert('error linking with database');
-                } else {
-                    emailIsvalid = false;
-                }
-            } catch (err) {
-                alert(err);
-            }
-        }
+    }
     </script>
 </body>
 

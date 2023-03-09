@@ -99,10 +99,12 @@ if (TRUE === isset($_POST['login'])) {
 
                     <div class="form-group">
                         <label>Code de vérification</label>
-                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img
+                            src="captcha.php">
                     </div>
 
-                    <button type="submit" name="login" class="btn btn-info">LOGIN</button>&nbsp;&nbsp;&nbsp;<a href="signup.php">Je n'ai pas de compte</a>
+                    <button type="submit" name="login" class="btn btn-info">LOGIN</button>&nbsp;&nbsp;&nbsp;<a
+                        href="signup.php">Je n'ai pas de compte</a>
                 </form>
             </div>
         </div>
