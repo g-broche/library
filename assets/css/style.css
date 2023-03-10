@@ -1,31 +1,39 @@
-
 /* =============================================================
    GENERAL STYLES
  ============================================================ */
 
+main {
+    height: 100vh;
+    padding: 20px 30px;
+}
+
 body {
     font-family: 'Open Sans', sans-serif;
-    line-height:28px;
-   
+    line-height: 28px;
+
 }
+
 .set-radius-zero {
-    border-radius:0px;
-    -moz-border-radius:0px;
-    -webkit-border-radius:0px;
+    border-radius: 0px;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
 }
+
 .content-wrapper {
     margin-top: 40px;
-    min-height:800px;
-    padding-bottom:90px;
+    min-height: 800px;
+    padding-bottom: 90px;
 }
+
 .header-line {
-    font-weight:900;
-    padding-bottom:25px;
-    border-bottom:1px solid #eeeeee;
-    text-transform:uppercase;
+    font-weight: 900;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #eeeeee;
+    text-transform: uppercase;
 }
+
 .pad-botm {
-    padding-bottom:30px;
+    padding-bottom: 30px;
 }
 
 
@@ -34,57 +42,95 @@ body {
  ============================================================ */
 
 .right-div {
-    float: right; 
+    float: right;
     padding: 20px;
 }
+
 #menu-top a {
-    color:#000;
-    text-decoration:none;
-    font-weight:500;
+    color: #000;
+    text-decoration: none;
+    font-weight: 500;
     padding: 25px 15px 25px 15px;
-    text-transform:uppercase;
+    text-transform: uppercase;
 
 }
+
 .menu-section {
     background-color: #f7f7f7;
-    border-bottom:5px solid #9170E4;
-    width:100%
+    border-bottom: 5px solid #9170E4;
+    width: 100%
 }
+
 .menu-top-active {
-    background-color:#eeeeee;
+    background-color: #eeeeee;
 }
+
 .navbar-inverse {
-	background-color: #FFF;
-	border-color: rgba(155, 153, 153, 0.23);
+    background-color: #FFF;
+    border-color: rgba(155, 153, 153, 0.23);
 
 }
 
 .navbar {
     min-height: 90px;
     margin-bottom: 0px;
-   
+
 }
-.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
-    border-color:transparent;
+
+.navbar-inverse .navbar-collapse,
+.navbar-inverse .navbar-form {
+    border-color: transparent;
 }
+
 .navbar-toggle {
-	background-color: black;
-	border: 1px solid black;
+    background-color: black;
+    border: 1px solid black;
 }
 
 /* =============================================================
    FOOTER SECTION STYLES
  ============================================================ */
 .footer-section {
-    padding:25px 50px 25px 50px;
-    color:#000;
-    font-size:13px;
+    padding: 25px 50px 25px 50px;
+    color: #000;
+    font-size: 13px;
     background-color: #f7f7f7;
-    text-align:right;
-    border-top:5px solid #9170E4;
+    text-align: right;
+    border-top: 5px solid #9170E4;
 }
 
-.footer-section a, .footer-section a:hover {
-   color:#000;
+.footer-section a,
+.footer-section a:hover {
+    color: #000;
 }
 
+
+/* =============================================================
+  DASHBOARD STYLES
+ ============================================================ */
+
+
+#dashboardMain .bookLentCountWrapper ul {
+    padding: 0;
+    list-style-type: none;
+    border: 2px solid;
+}
+
+#dashboardMain .bookLentCountWrapper:first-child ul {
+    color: rgb(76, 76, 143);
+    border-color: lightblue;
+}
+
+#dashboardMain .bookLentCountWrapper:nth-child(2) ul {
+    color: rgb(134, 123, 19);
+    border-color: bisque;
+}
+
+#dashboardMain .bookLentCountWrapper li {
+    text-align: center;
+    padding-top: 15px;
+}
+
+#dashboardMain .bookLentCountWrapper li:first-child {
+    font-size: 50px;
+}

@@ -5,6 +5,7 @@ session_start();
 // On inclue le fichier de configuration et de connexion à la base de données
 include('includes/config.php');
 include('includes/function-library.php');
+include('includes/request-library.php');
 // Après la soumission du formulaire de login ($_POST['change'] existe
 if(isset($_POST['changePassword'])){
      if(!(areValuesSet($_POST['vercode'], $_SESSION["vercode"] ) && areValuesNotEmpty($_POST['vercode'], $_SESSION["vercode"] ) && $_POST['vercode']==$_SESSION["vercode"])){
@@ -16,7 +17,10 @@ if(isset($_POST['changePassword'])){
           echo "<script>alert('le captcha est incorrect')</script>";
 // Sinon on continue
      }else{
-        if(!(areValuesSet($_POST['email'],$_POST['phone'],$_POST['changePassword'],$_POST['confirmPassword']) && areValuesNotEmpty($_POST['email'],$_POST['phone'],$_POST['changePassword'],$_POST['confirmPassword']))){
+        if(!(areValuesSet($_POST['email'],$_POST['phone'],$_POST['changePassword'],$_POST['confirmPassword']) &&
+         areValuesNotEmpty($_POST['email'],$_POST['phone'],$_POST['changePassword'],$_POST['confirmPassword']))&&
+         checkStringValidy($_POST['phone'],"/^\d{10}$/", 10,10)&& checkStringValidy($_POST['email'],"/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/", 10, 50)
+         &&checkStringValidy($_POST['changePassword'], "/^.+$/", 6)){
             echo "<script>alert('il manque des informations')</script>";
         }else{
             // on recupere l'email et le numero de portable saisi par l'utilisateur
@@ -102,7 +106,7 @@ if(isset($_POST['changePassword'])){
 
                     <div class="form-group">
                         <label>Portable</label>
-                        <input type="text" name="phone" required>
+                        <input id="phone" type="text" name="phone" required>
                     </div>
 
                     <div class="form-group">
@@ -112,7 +116,7 @@ if(isset($_POST['changePassword'])){
 
                     <div class="form-group">
                         <label>Confirmez le mot de passe</label>
-                        <input id="passwordConfirm" type="confirmPassword" required>
+                        <input id="passwordConfirm" type="password" name="confirmPassword" required>
                     </div>
 
                     <div class="form-group">
@@ -138,21 +142,51 @@ if(isset($_POST['changePassword'])){
 <script src="js-library.js"></script>
 <script>
 const form = document.querySelector("form");
+const phoneField = document.getElementById("phone");
+const emailField = document.getElementById("emailField");
 const passField = document.getElementById('password');
 const passFieldConfirm = document.getElementById('passwordConfirm');
 const buttonSubmit = document.getElementById("submitBTN");
+
+buttonSubmit.disabled = true;
+
+let isPhoneValid = false;
+let emailIsvalid = false;
+let passIsValid = false;
 
 form.addEventListener("submit", function(event) {
     event.preventDefault()
 });
 
+phoneField.addEventListener('input', debounce(100, () => {
+    isPhoneValid = checkStringValidy(phoneField.value, /^\d{10}$/, 10, 10)
+}, () => {
+    enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
+}));
 
 passField.addEventListener('input', debounce(100, () => {
     passIsValid = valid(passField, passFieldConfirm)
-}, enableSubmitButton));
+}, () => {
+    enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
+}));
+
 passFieldConfirm.addEventListener('input', debounce(100, () => {
     passIsValid = valid(passField, passFieldConfirm)
-}, enableSubmitButton));
+}, () => {
+    enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
+}));
+
+emailField.addEventListener('input', debounce(100, () => {
+    emailIsvalid = checkStringValidy(emailField.value, /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 10, 50)
+}, () => {
+    enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
+}));
+
+buttonSubmit.addEventListener('click', () => {
+    if (isPhoneValid && passIsValid && emailIsvalid) {
+        form.submit();
+    }
+})
 </script>
 
 

@@ -5,6 +5,7 @@ session_start();
 // On inclue le fichier de configuration et de connexion a la base de donnees
 include('includes/config.php');
 include('includes/function-library.php');
+include('includes/request-library.php');
 
 error_log(print_r($_SESSION, 1));
 

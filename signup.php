@@ -7,6 +7,7 @@ session_start();
 // On inclue le fichier de configuration et de connexion à la base de données
 include('includes/config.php');
 include('includes/function-library.php');
+include('includes/request-library.php');
 // Après la soumission du formulaire de compte (plus bas dans ce fichier)
 // On vérifie si le code captcha est correct en comparant ce que l'utilisateur a saisi dans le formulaire
 // $_POST["vercode"] et la valeur initialisée $_SESSION["vercode"] lors de l'appel à captcha.php (voir plus bas)
@@ -17,7 +18,9 @@ if (isset($_POST["vercode"])) {
 
         if (
             areValuesSet($_POST['name'], $_POST['phone'], $_POST['email'], $_POST['password']) &&
-            areValuesNotEmpty($_POST['name'], $_POST['phone'], $_POST['email'], $_POST['password'])
+            areValuesNotEmpty($_POST['name'], $_POST['phone'], $_POST['email'], $_POST['password']) &&
+            checkStringValidy($_POST['name'],"/^[a-zA-Z]+ [a-zA-Z]+$/", 2) && checkStringValidy($_POST['phone'],"/^\d{10}$/", 10,10)&&
+            checkStringValidy($_POST['email'],"/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/", 10, 50)&&checkStringValidy($_POST['password'], "/^.+$/", 6)
         ) {
 
             try {
@@ -140,11 +143,11 @@ function lastInsertId($dbCo)
                 <form method="post" action="signup.php">
                     <div class="form-group">
                         <label>Entrez votre nom complet</label>
-                        <input type="text" name="name" required>
+                        <input type="text" id="name" name="name" required>
                     </div>
                     <div class="form-group">
                         <label>Portable</label>
-                        <input type="text" name="phone" required>
+                        <input type="text" id="phone" name="phone" required>
                     </div>
                     <div class="form-group">
                         <label>Email</label>
@@ -190,48 +193,55 @@ function lastInsertId($dbCo)
     // FALSE sinon
 
     const form = document.querySelector("form");
+    const nameField = document.getElementById("name");
+    const phoneField = document.getElementById("phone");
     const emailField = document.getElementById("emailField");
     const passField = document.getElementById("password");
     const passFieldConfirm = document.getElementById("passwordConfirm");
     const buttonSubmit = document.getElementById("submitBTN");
+    let isNameValid = false;
+    let isPhoneValid = false;
     let passIsValid = false;
     let emailIsvalid = false;
+
+
+    buttonSubmit.disabled = true;
 
     form.addEventListener("submit", function(event) {
         event.preventDefault()
     });
 
+    nameField.addEventListener('input', debounce(100, () => {
+        isNameValid = checkStringValidy(nameField.value, /^[a-zA-Z]+ [a-zA-Z]+$/, 2)
+    }, () => {
+        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
+    }));
+
+    phoneField.addEventListener('input', debounce(100, () => {
+        isPhoneValid = checkStringValidy(phoneField.value, /^\d{10}$/, 10, 10)
+    }, () => {
+        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
+    }));
+
     passField.addEventListener('input', debounce(100, () => {
         passIsValid = valid(passField, passFieldConfirm)
     }, () => {
-        enableSubmitButton(buttonSubmit, passIsValid, emailIsvalid)
+        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
     }));
 
     passFieldConfirm.addEventListener('input', debounce(100, () => {
         passIsValid = valid(passField, passFieldConfirm)
     }, () => {
-        enableSubmitButton(buttonSubmit, passIsValid, emailIsvalid)
+        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
     }));
 
-    emailField.addEventListener('input', debounce(500, () => {
-        passIsValid = valid(passField, passFieldConfirm)
-    }, isEmailFree, () => {
-        enableSubmitButton(buttonSubmit, passIsValid, emailIsvalid)
-    }));
+    emailField.addEventListener('input', debounce(500, isEmailFree));
 
     buttonSubmit.addEventListener('click', () => {
-        if (passIsValid && emailIsvalid) {
-            form.submit()
-        };
+        if (isNameValid && isPhoneValid && passIsValid && emailIsvalid) {
+            form.submit();
+        }
     })
-
-    // function enableSubmitButton() {
-    //     if (passIsValid && emailIsvalid) {
-    //         buttonSubmit.disabled = false;
-    //     } else {
-    //         buttonSubmit.disabled = true;
-    //     }
-    // }
 
     // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email (=> in js-library)
 
@@ -250,6 +260,7 @@ function lastInsertId($dbCo)
         } catch (err) {
             alert(err);
         }
+        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid]);
     }
     </script>
 </body>

@@ -4,6 +4,8 @@ session_start();
 
 // On inclue le fichier de configuration et de connexion a la base de donn�es
 include('includes/config.php');
+include('includes/function-library.php');
+include('includes/request-library.php');
 
 
 if(strlen($_SESSION['login'])==0) {
@@ -12,12 +14,27 @@ if(strlen($_SESSION['login'])==0) {
   header('location:index.php');
 } else {
 	// On r�cup�re l'identifiant du lecteur dans le tableau $_SESSION
-	
+	$ReaderId = $_SESSION['rdid'];
 	// On veut savoir combien de livres ce lecteur a emprunte
 	// On construit la requete permettant de le savoir a partir de la table tblissuedbookdetails
-	
 	// On stocke le r�sultat dans une variable
-	
+
+  $returnedValue=getBookLentAmount($dbh, $ReaderId);
+  if($returnedValue==-1){
+    echo "<script>alert('Couldn't reach database')</script>";
+    die();
+  }else{
+    $bookLentAmount=$returnedValue;
+  }
+
+  $returnedValue=getBookNotReturned($dbh, $ReaderId);
+  if($returnedValue==-1){
+    echo "<script>alert('Couldn't reach database')</script>";
+    die();
+  }else{
+    $bookNotReturned=$returnedValue;
+  }
+
 	// On veut savoir combien de livres ce lecteur n'a pas rendu
 	// On construit la requete qui permet de compter combien de livres sont associ�s � ce lecteur avec le ReturnStatus � 0 
 	
@@ -44,6 +61,23 @@ if(strlen($_SESSION['login'])==0) {
     <!--On inclue ici le menu de navigation includes/header.php-->
     <?php include('includes/header.php');?>
     <!-- On affiche le titre de la page : Tableau de bord utilisateur-->
+    <main id="dashboardMain" class=row>
+        <div class="bookLentCountWrapper col-2">
+            <ul>
+                <li>&#9776;</li>
+                <li><?php echo $bookLentAmount?></li>
+                <li>Livres empruntés</li>
+            </ul>
+        </div>
+
+        <div class="bookLentCountWrapper col-2">
+            <ul>
+                <li>&#9851;</li>
+                <li><?php echo $bookNotReturned?></li>
+                <li>Livres non encore rendus</li>
+            </ul>
+        </div>
+    </main>
 
     <!-- On affiche la carte des livres emprunt�s par le lecteur-->
 
