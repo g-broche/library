@@ -2,14 +2,15 @@ Login utilisateurs
 
 LECTEUR
 
-URL : “http://localhost/library”
-Login : test@gmail.com
-Mot de passe : Test@123
+URL : “”
+Login : dflores1@so-net.ne.jp
+Mot de passe : derptest
 
 ADMINISTRATION
 
 URL : “http://localhost/library/admin”
 Login : admin
-Mot de passe : Test@123
+Mot de passe : test@123
+$2y$10$iNM0VxHapFX1mCxGKqN2AONfYfTiFQZCs347RPAD1Y1/L1an7D/Sm
 
 

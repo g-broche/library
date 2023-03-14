@@ -22,36 +22,26 @@ if (TRUE === isset($_POST['login'])) {
         // Le code est incorrect on informe l'utilisateur par une fenetre pop_up
         echo "<script>alert('Code de vérification incorrect')</script>";
     } else {
-        // Le code est correct, on peut continuer
-        // On recupere le mail de l'utilisateur saisi dans le formulaire
-        $mail = $_POST['emailid'];
-        // On construit la requete SQL pour recuperer l'id, le readerId et l'email du lecteur � partir des deux variables ci-dessus
-        // dans la table tblreaders
-        $sql = "SELECT EmailId, Password, ReaderId, Status FROM tblreaders  WHERE EmailId = :email";
-        $query = $dbh->prepare($sql);
-        $query->bindParam(':email', $mail, PDO::PARAM_STR);
-        // On execute la requete
-        $query->execute();
-        // On stocke le resultat de recherche dans une variable $result
-        $result = $query->fetch(PDO::FETCH_OBJ);
-
-        if (!empty($result)) {
-            // Si le resultat de recherche n'est pas vide
-            // On stocke l'identifiant du lecteur (ReaderId) dans $_SESSION['rdid']
-            $_SESSION['rdid'] = $result->ReaderId;
-
-            if ($result->Status == 1) {
-                // Si le statut du lecteur est actif (egal a 1)
-                // On stocke l'email du lecteur dans $_SESSION['login']
-                $_SESSION['login'] = $_POST['emailid'];
-                // l'utilisateur est redirige vers dashboard.php
-                header('location:dashboard.php');
-            } else {
-                // Sinon le compte du lecteur a ete bloque. On informe l'utilisateur par un popu
-                echo "<script>alert('Votre compte à été bloqué')</script>";
+        if(areValuesSet($_POST['password'], $_POST['emailid'])&&
+        areValuesNotEmpty($_POST['password'], $_POST['emailid'])){    
+        
+            $result=getUser($dbh, $_POST['emailid']);
+            if (empty($result)) {
+                echo "<script>alert('Utilisateur inconnu')</script>";
             }
-        } else {
-            echo "<script>alert('Utilisateur inconnu')</script>";
+            else if (password_verify($_POST['password'], $result->Password)){
+                // On stocke l'identifiant du lecteur (ReaderId) dans $_SESSION['rdid']
+                if ($result->Status == 1) {
+                $_SESSION['login'] = $_POST['emailid'];
+                $_SESSION['rdid'] = $result->ReaderId;
+                header('location:dashboard.php');
+                }else{
+                    // Sinon le compte du lecteur a ete bloque. On informe l'utilisateur par un popu
+                    echo "<script>alert('Votre compte à été bloqué')</script>";
+                }
+            }else{
+                echo "<script>alert('Utilisateur inconnu')</script>";
+            }
         }
     }
 }
@@ -76,40 +66,42 @@ if (TRUE === isset($_POST['login'])) {
     <?php include('includes/header.php'); ?>
 
     <!-- On insere le titre de la page (LOGIN UTILISATEUR) -->
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <h3>LOGIN LECTEUR</h3>
+    <main>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h3>LOGIN LECTEUR</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-8 offset-md-3">
+                    <form method="post" action="index.php">
+                        <div class="form-group">
+                            <label>Entrez votre email</label>
+                            <input type="text" name="emailid" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Entrez votre mot de passe</label>
+                            <input type="password" name="password" required>
+                            <p>
+                                <a href="user-forgot-password.php">Mot de passe oublié ?</a>
+                            </p>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Code de vérification</label>
+                            <input type="text" name="vercode" required style="height:25px;"
+                                required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                        </div>
+
+                        <button type="submit" name="login" class="btn btn-info">LOGIN</button>&nbsp;&nbsp;&nbsp;<a
+                            href="signup.php">Je n'ai pas de compte</a>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-8 offset-md-3">
-                <form method="post" action="index.php">
-                    <div class="form-group">
-                        <label>Entrez votre email</label>
-                        <input type="text" name="emailid" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Entrez votre mot de passe</label>
-                        <input type="password" name="password" required>
-                        <p>
-                            <a href="user-forgot-password.php">Mot de passe oublié ?</a>
-                        </p>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Code de vérification</label>
-                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img
-                            src="captcha.php">
-                    </div>
-
-                    <button type="submit" name="login" class="btn btn-info">LOGIN</button>&nbsp;&nbsp;&nbsp;<a
-                        href="signup.php">Je n'ai pas de compte</a>
-                </form>
-            </div>
-        </div>
-    </div>
+    </main>
 
 
     <!--On insere le formulaire de login-->

@@ -129,52 +129,55 @@ function lastInsertId($dbCo)
 </head>
 
 <body>
+
     <!-- On inclue le fichier header.php qui contient le menu de navigation-->
     <?php include('includes/header.php'); ?>
-    <!--On affiche le titre de la page : CREER UN COMPTE-->
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <h3>CREER UN COMPTE</h3>
+    <main>
+        <!--On affiche le titre de la page : CREER UN COMPTE-->
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h3>CREER UN COMPTE</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-8 offset-md-3">
+                    <form method="post" action="signup.php">
+                        <div class="form-group">
+                            <label>Entrez votre nom complet</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Portable</label>
+                            <input type="text" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input id="emailField" type="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Mot de passe :</label>
+                            <input id="password" type="password" name="password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirmez le mot de passe</label>
+                            <input id="passwordConfirm" type="password" name="password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Code de vérification</label>
+                            <input type="text" name="vercode" required style="height:25px;"
+                                required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                        </div>
+
+                        <button id="submitBTN" type="submit" name="register" class="btn btn-info">Enregistrer</button>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-8 offset-md-3">
-                <form method="post" action="signup.php">
-                    <div class="form-group">
-                        <label>Entrez votre nom complet</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Portable</label>
-                        <input type="text" id="phone" name="phone" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input id="emailField" type="email" name="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Mot de passe :</label>
-                        <input id="password" type="password" name="password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Confirmez le mot de passe</label>
-                        <input id="passwordConfirm" type="password" name="password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Code de vérification</label>
-                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img
-                            src="captcha.php">
-                    </div>
-
-                    <button id="submitBTN" type="submit" name="register" class="btn btn-info">Enregistrer</button>
-                </form>
-            </div>
-        </div>
-    </div>
+    </main>
     <!--On affiche le formulaire de creation de compte-->
     <!--A la suite de la zone de saisie du captcha, on insère l'image créée par captcha.php : <img src="captcha.php">  -->
     <!-- On appelle la fonction valid() dans la balise <form> onSubmit="return valid(); -->

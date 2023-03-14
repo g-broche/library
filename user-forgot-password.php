@@ -88,48 +88,50 @@ if(isset($_POST['changePassword'])){
 
 
     <!-- On insere le titre de la page (RECUPERATION MOT DE PASSE -->
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <h3>RECUPERATION DE MOT DE PASSE</h3>
+    <main>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h3>RECUPERATION DE MOT DE PASSE</h3>
+                </div>
+            </div>
+            <!--On insere le formulaire de recuperation-->
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-8 offset-md-3">
+                    <form method="post" action="user-forgot-password.php">
+
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input id="emailField" type="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Portable</label>
+                            <input id="phone" type="text" name="phone" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nouveau mot de passe :</label>
+                            <input id="password" type="password" name="changePassword" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirmez le mot de passe</label>
+                            <input id="passwordConfirm" type="password" name="confirmPassword" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Code de vérification</label>
+                            <input type="text" name="vercode" required style="height:25px;"
+                                required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                        </div>
+
+                        <button id="submitBTN" type="submit" name="register" class="btn btn-info">Enregistrer</button>
+                    </form>
+                </div>
             </div>
         </div>
-        <!--On insere le formulaire de recuperation-->
-        <div class="row">
-            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-8 offset-md-3">
-                <form method="post" action="user-forgot-password.php">
-
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input id="emailField" type="email" name="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Portable</label>
-                        <input id="phone" type="text" name="phone" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nouveau mot de passe :</label>
-                        <input id="password" type="password" name="changePassword" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Confirmez le mot de passe</label>
-                        <input id="passwordConfirm" type="password" name="confirmPassword" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Code de vérification</label>
-                        <input type="text" name="vercode" required style="height:25px;">&nbsp;&nbsp;&nbsp;<img
-                            src="captcha.php">
-                    </div>
-
-                    <button id="submitBTN" type="submit" name="register" class="btn btn-info">Enregistrer</button>
-                </form>
-            </div>
-        </div>
-    </div>
+    </main>
     <!--L'appel de la fonction valid() se fait dans la balise <form> au moyen de la propri�t� onSubmit="return valid();"-->
 
 

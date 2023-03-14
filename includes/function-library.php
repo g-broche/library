@@ -30,4 +30,12 @@ function checkStringValidy($string, $pattern="/^.+$/", $minlength = 0, $maxlengt
     }
 }
 
+function checkPasswordIsRight($inputedPass, $hashedPass){
+    if(password_verify($inputedPass, $hashedPass)){
+        return true;
+    }else{
+        return false;
+    } 
+}
+
 ?>
