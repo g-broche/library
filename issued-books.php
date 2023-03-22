@@ -80,12 +80,13 @@ td {
 
             <div>
                 <?php
-                if($result[0]==-1){
-                    echo "<span class='fontRed'> Erreur serveur</span>";
-                }else if($result[0]==-0){
-                    echo "<span > Aucun livre d'a été emprunté pour l'heure</span>";
-                }else if($result[0]==1){
-                    ?>
+                    if($result[0]==-1){
+                        echo "<span class='fontRed'> Erreur serveur</span>";
+                    }else if($result[0]==0){
+                        echo "<span > Aucun livre d'a été emprunté pour l'heure</span>";
+                    }else if($result[0]==1){
+                        $count=1
+                ?>
                 <table>
                     <thead>
                         <tr>
@@ -97,28 +98,33 @@ td {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        $count=1;
-                                foreach($result[1] as $bookIssued){
-
-                                    echo "<tr>
-                                    <td>".$count."</td>
-                                    <td>".$bookIssued['BookName']."</td>
-                                    <td>".$bookIssued['ISBNNumber']."</td>
-                                    <td>".$bookIssued['IssuesDate']."</td>";
-                                    if($bookIssued['ReturnStatus']==0){
-                                        echo "<td class='fontRed'>Non retourné</td>";
-                                    }else if($bookIssued['ReturnStatus']==1){
-                                        echo "<td class='fontGreen'>".$bookIssued['ReturnDate']."</td>";
-                                    }else{
-                                        echo "<td class='fontRed'>erreur</td>";
-                                    }
-                                    $count++;
-                                }
+                        <?php foreach($result[1] as $bookIssued) :?>
+                        <?php switch ($bookIssued['ReturnStatus']) {
+                            case 0:
+                                $returnColor = 'fontRed';
+                                $returnedDate = 'Non retourné';
+                                break;
+                            case 1:
+                                $returnColor = 'fontGreen';
+                                $returnedDate = $bookIssued['ReturnDate'];
+                                break; 
+                            default:
+                                $returnColor = 'fontRed';
+                                $returnedDate = 'Non retourné';
+                                break;
                         }?>
+                        <tr>
+                            <td><?=$count?></td>
+                            <td><?=$bookIssued['BookName']?></td>
+                            <td><?=$bookIssued['ISBNNumber']?></td>
+                            <td><?=$bookIssued['IssuesDate']?></td>
+                            <td class='<?=$returnColor?>'><?=$returnedDate?></td>
+                            <?php $count++; ?>
+                            <?php endforeach;?>
+                        </tr>
                     </tbody>
                 </table>
-
+                <?php }?>
             </div>
         </div>
     </main>

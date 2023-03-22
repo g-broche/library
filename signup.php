@@ -261,7 +261,7 @@ function lastInsertId($dbCo)
                 emailIsvalid = false;
             }
         } catch (err) {
-            alert(err);
+            alert("unkown error");
         }
         enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid]);
     }

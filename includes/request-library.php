@@ -159,12 +159,12 @@ function getIssuedBooksHistory($dbco, $userId){
         $statement->execute();
         $result =  $statement->fetchAll(PDO::FETCH_ASSOC);
         if(empty($result)){
-            return [0, null];
+            return [0, NULL];
         }else{
             return [1, $result];
         }
     }catch(err){
-        return [-1, $result[0]];
+        return [-1, NULL];
     }
 }
 ?>

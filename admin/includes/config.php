@@ -50,6 +50,6 @@ register_shutdown_function(function ()
     }
 });
 
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 
 ?>

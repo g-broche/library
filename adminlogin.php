@@ -34,20 +34,16 @@ if (isset($_POST['name'])){
             if($result == 0){
                 // si aucun utilisateur est trouvé. On le signal par une popup
                 echo "<script>alert('Les informations entrées sont erronées')</script>";
-                die();
             } else if ($result == -1){
                 echo "<script>alert('Erreur serveur')</script>";
-                die();
             }else{
                 // Si le resultat de recherche n'est pas vide on compare le mot de passe
                 if(checkPasswordIsRight($_POST['password'], $result[0]['Password'])){
                 // On stocke le nom de l'utilisateur  $_POST['username'] en session $_SESSION
                 $_SESSION['alogin']=$result[0]['FullName'];
-                echo "<script>alert('Will implement redirect when landing page is done')</script>";
-                die();
+                header('location:admin/dashboard.php');;
             }else{
                 echo "<script>alert('les informations entrées sont erronées')</script>";
-                die();
             }
             }
         }
