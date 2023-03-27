@@ -22,24 +22,25 @@ if (TRUE === isset($_POST['login'])) {
         // Le code est incorrect on informe l'utilisateur par une fenetre pop_up
         echo "<script>alert('Code de vérification incorrect')</script>";
     } else {
-        if(areValuesSet($_POST['password'], $_POST['emailid'])&&
-        areValuesNotEmpty($_POST['password'], $_POST['emailid'])){    
-        
-            $result=getUser($dbh, $_POST['emailid']);
+        if (
+            (isset($_POST['password']) && isset($_POST['emailid'])) &&
+            ($_POST['password'] !== null && $_POST['emailid'] !== null)
+        ) {
+
+            $result = getUser($dbh, $_POST['emailid']);
             if (empty($result)) {
                 echo "<script>alert('Utilisateur inconnu')</script>";
-            }
-            else if (password_verify($_POST['password'], $result->Password)){
+            } else if (password_verify($_POST['password'], $result->Password)) {
                 // On stocke l'identifiant du lecteur (ReaderId) dans $_SESSION['rdid']
                 if ($result->Status == 1) {
-                $_SESSION['login'] = $_POST['emailid'];
-                $_SESSION['rdid'] = $result->ReaderId;
-                header('location:dashboard.php');
-                }else{
+                    $_SESSION['login'] = $_POST['emailid'];
+                    $_SESSION['rdid'] = $result->ReaderId;
+                    header('location:dashboard.php');
+                } else {
                     // Sinon le compte du lecteur a ete bloque. On informe l'utilisateur par un popu
                     echo "<script>alert('Votre compte à été bloqué')</script>";
                 }
-            }else{
+            } else {
                 echo "<script>alert('Utilisateur inconnu')</script>";
             }
         }
@@ -91,12 +92,10 @@ if (TRUE === isset($_POST['login'])) {
 
                         <div class="form-group">
                             <label>Code de vérification</label>
-                            <input type="text" name="vercode" required style="height:25px;"
-                                required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                            <input type="text" name="vercode" required style="height:25px;" required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
                         </div>
 
-                        <button type="submit" name="login" class="btn btn-info">LOGIN</button>&nbsp;&nbsp;&nbsp;<a
-                            href="signup.php">Je n'ai pas de compte</a>
+                        <button type="submit" name="login" class="btn btn-info">LOGIN</button>&nbsp;&nbsp;&nbsp;<a href="signup.php">Je n'ai pas de compte</a>
                     </form>
                 </div>
             </div>

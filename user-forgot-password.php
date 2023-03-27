@@ -7,49 +7,48 @@ include('includes/config.php');
 include('includes/function-library.php');
 include('includes/request-library.php');
 // Après la soumission du formulaire de login ($_POST['change'] existe
-if(isset($_POST['changePassword'])){
-     if(!(areValuesSet($_POST['vercode'], $_SESSION["vercode"] ) && areValuesNotEmpty($_POST['vercode'], $_SESSION["vercode"] ) && $_POST['vercode']==$_SESSION["vercode"])){
-// On verifie si le code captcha est correct en comparant ce que l'utilisateur a saisi dans le formulaire
-// $_POST["vercode"] et la valeur initialisee $_SESSION["vercode"] lors de l'appel a captcha.php (voir plus bas)
+if (isset($_POST['changePassword'])) {
+    if (!(isset($_POST['vercode']) && isset($_SESSION["vercode"]) && ($_POST['vercode'] !== null && $_SESSION["vercode"] !== null) && $_POST['vercode'] == $_SESSION["vercode"])) {
+        // On verifie si le code captcha est correct en comparant ce que l'utilisateur a saisi dans le formulaire
+        // $_POST["vercode"] et la valeur initialisee $_SESSION["vercode"] lors de l'appel a captcha.php (voir plus bas)
 
-// Si le code est incorrect on informe l'utilisateur par une fenetre pop_up
+        // Si le code est incorrect on informe l'utilisateur par une fenetre pop_up
 
-          echo "<script>alert('le captcha est incorrect')</script>";
-// Sinon on continue
-     }else{
-        if(!(areValuesSet($_POST['email'],$_POST['phone'],$_POST['changePassword'],$_POST['confirmPassword']) &&
-         areValuesNotEmpty($_POST['email'],$_POST['phone'],$_POST['changePassword'],$_POST['confirmPassword']))&&
-         checkStringValidy($_POST['phone'],"/^\d{10}$/", 10,10)&& checkStringValidy($_POST['email'],"/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/", 10, 50)
-         &&checkStringValidy($_POST['changePassword'], "/^.+$/", 6)){
+        echo "<script>alert('le captcha est incorrect')</script>";
+        // Sinon on continue
+    } else {
+        if (
+            !(isset($_POST['email']) && isset($_POST['phone']) && isset($_POST['changePassword']) && isset($_POST['confirmPassword']) &&
+                ($_POST['email'] !== null && $_POST['phone'] !== null && $_POST['changePassword'] !== null && $_POST['confirmPassword'] !== null)) &&
+            checkStringValidy($_POST['phone'], "/^\d{10}$/", 10, 10) && checkStringValidy($_POST['email'], "/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/", 10, 50)
+            && checkStringValidy($_POST['changePassword'], "/^.+$/", 6)
+        ) {
             echo "<script>alert('il manque des informations')</script>";
-        }else{
+        } else {
             // on recupere l'email et le numero de portable saisi par l'utilisateur
-            $id='';
-            $email=$_POST['email'];
-            $phone=$_POST['phone'];
-            $newPass= password_hash($_POST['changePassword'], PASSWORD_DEFAULT);
+            $id = '';
+            $email = $_POST['email'];
+            $phone = $_POST['phone'];
+            $newPass = password_hash($_POST['changePassword'], PASSWORD_DEFAULT);
             // et le nouveau mot de passe que l'on encode (fonction password_hash)
-    
+
             // On cherche en base le lecteur avec cet email et ce numero de tel dans la table tblreaders
-            $id=getUserIdForPassRecovery ($dbh, $email, $phone);
-    
-            if($id == -1){
+            $id = getUserIdForPassRecovery($dbh, $email, $phone);
+
+            if ($id == -1) {
                 echo "<script>alert('Une erreur a eu lieu')</script>";
-            }else if($id == 0){
+            } else if ($id == 0) {
                 echo "<script>alert('Informations erronées')</script>";
-            }else{
-                $updateStatus=updateUserPassword($dbh, $id, $newPass);
-                if ($updateStatus){
+            } else {
+                $updateStatus = updateUserPassword($dbh, $id, $newPass);
+                if ($updateStatus) {
                     echo "<script>alert('Le changement de mot de passe a été enregistré')</script>";
-                }else{
+                } else {
                     echo "<script>alert('Informations erronées')</script>";
                 }
             }
         }
-
-
     }
-
 }
 
 
@@ -76,7 +75,7 @@ if(isset($_POST['changePassword'])){
     <link href="assets/css/style.css" rel="stylesheet" />
 
     <script type="text/javascript">
-    // On cree une fonction nommee valid() qui verifie que les deux mots de passe saisis par l'utilisateur sont identiques.
+        // On cree une fonction nommee valid() qui verifie que les deux mots de passe saisis par l'utilisateur sont identiques.
     </script>
 
 </head>
@@ -122,8 +121,7 @@ if(isset($_POST['changePassword'])){
 
                         <div class="form-group">
                             <label>Code de vérification</label>
-                            <input type="text" name="vercode" required style="height:25px;"
-                                required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                            <input type="text" name="vercode" required style="height:25px;" required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
                         </div>
 
                         <button id="submitBTN" type="submit" name="register" class="btn btn-info">Enregistrer</button>
@@ -143,52 +141,52 @@ if(isset($_POST['changePassword'])){
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="js-library.js"></script>
 <script>
-const form = document.querySelector("form");
-const phoneField = document.getElementById("phone");
-const emailField = document.getElementById("emailField");
-const passField = document.getElementById('password');
-const passFieldConfirm = document.getElementById('passwordConfirm');
-const buttonSubmit = document.getElementById("submitBTN");
+    const form = document.querySelector("form");
+    const phoneField = document.getElementById("phone");
+    const emailField = document.getElementById("emailField");
+    const passField = document.getElementById('password');
+    const passFieldConfirm = document.getElementById('passwordConfirm');
+    const buttonSubmit = document.getElementById("submitBTN");
 
-buttonSubmit.disabled = true;
+    buttonSubmit.disabled = true;
 
-let isPhoneValid = false;
-let emailIsvalid = false;
-let passIsValid = false;
+    let isPhoneValid = false;
+    let emailIsvalid = false;
+    let passIsValid = false;
 
-form.addEventListener("submit", function(event) {
-    event.preventDefault()
-});
+    form.addEventListener("submit", function(event) {
+        event.preventDefault()
+    });
 
-phoneField.addEventListener('input', debounce(100, () => {
-    isPhoneValid = checkStringValidy(phoneField.value, /^\d{10}$/, 10, 10)
-}, () => {
-    enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
-}));
+    phoneField.addEventListener('input', debounce(100, () => {
+        isPhoneValid = checkStringValidy(phoneField.value, /^\d{10}$/, 10, 10)
+    }, () => {
+        enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
+    }));
 
-passField.addEventListener('input', debounce(100, () => {
-    passIsValid = valid(passField, passFieldConfirm)
-}, () => {
-    enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
-}));
+    passField.addEventListener('input', debounce(100, () => {
+        passIsValid = valid(passField, passFieldConfirm)
+    }, () => {
+        enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
+    }));
 
-passFieldConfirm.addEventListener('input', debounce(100, () => {
-    passIsValid = valid(passField, passFieldConfirm)
-}, () => {
-    enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
-}));
+    passFieldConfirm.addEventListener('input', debounce(100, () => {
+        passIsValid = valid(passField, passFieldConfirm)
+    }, () => {
+        enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
+    }));
 
-emailField.addEventListener('input', debounce(100, () => {
-    emailIsvalid = checkStringValidy(emailField.value, /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 10, 50)
-}, () => {
-    enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
-}));
+    emailField.addEventListener('input', debounce(100, () => {
+        emailIsvalid = checkStringValidy(emailField.value, /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 10, 50)
+    }, () => {
+        enableSubmitButton(buttonSubmit, [isPhoneValid, passIsValid, emailIsvalid])
+    }));
 
-buttonSubmit.addEventListener('click', () => {
-    if (isPhoneValid && passIsValid && emailIsvalid) {
-        form.submit();
-    }
-})
+    buttonSubmit.addEventListener('click', () => {
+        if (isPhoneValid && passIsValid && emailIsvalid) {
+            form.submit();
+        }
+    })
 </script>
 
 

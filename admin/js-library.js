@@ -10,8 +10,8 @@ function debounce(waitTime, ...funcs) {
     }
 }
 
-function valid(passField, passFieldConfirm) {
-    if (passField.value == passFieldConfirm.value && passField.value.length > 5) {
+function valid(passField, passFieldConfirm, pattern) {
+    if (passField.value == passFieldConfirm.value && pattern.test(passField.value)) {
         return true;
     } else {
         return false;

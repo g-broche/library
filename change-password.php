@@ -8,42 +8,38 @@ include('includes/function-library.php');
 include('includes/request-library.php');
 
 // Si l'utilisateur n'est pas logue, on le redirige vers la page de login (index.php)
-$updateStatusMsg="";
-$statusClass="";
-if(strlen($_SESSION['login'])==0) {
-	header('location:index.php');
-}else if (isset($_POST['newPassword'])){
-	if(areValuesSet($_POST['currentPassword'])&&
-    areValuesNotEmpty($_POST['currentPassword'],$_POST['newPassword'])){
-		if(!(checkStringValidy($_POST['newPassword'], "/^.+$/", 6)&&checkStringValidy($_POST['currentPassword'], "/^.+$/", 6))){
-			$updateStatusMsg="le mot de passe comporte moins de 6 charactères";
-            $statusClass="fontRed";
-		}else{
-			$result=selectUser($dbh, $_SESSION['login']);
-			if (empty($result)) {
-                $updateStatusMsg="mot de pass incorrect";
-                $statusClass="fontRed";
-            }else if (password_verify($_POST['currentPassword'], $result['Password'])){
-				$updateResult = updateUserPassword($dbh, $result['id'], password_hash($_POST['newPassword'], PASSWORD_DEFAULT));
-				if($updateResult){
-					$updateStatusMsg="le changement a bien été enregistré";
-                    $statusClass="fontGreen";
-				}else{
-					$updateStatusMsg="erreur serveur";
-                    $statusClass="fontRed";
-				}
-			}else{
-                $updateStatusMsg="mot de pass incorrect";
-                $statusClass="fontRed";
+$updateStatusMsg = "";
+$statusClass = "";
+if (strlen($_SESSION['login']) == 0) {
+    header('location:index.php');
+} else if (isset($_POST['newPassword'])) {
+    if (
+        isset($_POST['currentPassword']) &&
+        ($_POST['currentPassword'] !== null && $_POST['newPassword'] !== null)
+    ) {
+        if (!(checkStringValidy($_POST['newPassword'], "/^.+$/", 6) && checkStringValidy($_POST['currentPassword'], "/^.+$/", 6))) {
+            $updateStatusMsg = "le mot de passe comporte moins de 6 charactères";
+            $statusClass = "fontRed";
+        } else {
+            $result = selectUser($dbh, $_SESSION['login']);
+            if (empty($result)) {
+                $updateStatusMsg = "mot de pass incorrect";
+                $statusClass = "fontRed";
+            } else if (password_verify($_POST['currentPassword'], $result['Password'])) {
+                $updateResult = updateUserPassword($dbh, $result['id'], password_hash($_POST['newPassword'], PASSWORD_DEFAULT));
+                if ($updateResult) {
+                    $updateStatusMsg = "le changement a bien été enregistré";
+                    $statusClass = "fontGreen";
+                } else {
+                    $updateStatusMsg = "erreur serveur";
+                    $statusClass = "fontRed";
+                }
+            } else {
+                $updateStatusMsg = "mot de pass incorrect";
+                $statusClass = "fontRed";
             }
-		}     
-	}else{
-        echo "<script>alert('WTF ISSET?!')</script>";
-        die();
+        }
     }
-}else{
-    echo "<script>alert('WTF?!')</script>";
-    die();
 }
 // sinon, on peut continuer,
 // si le formulaire a ete envoye : $_POST['change'] existe
@@ -60,13 +56,13 @@ if(strlen($_SESSION['login'])==0) {
 
 
 <style>
-.fontGreen {
-    color: green;
-}
+    .fontGreen {
+        color: green;
+    }
 
-.fontRed {
-    color: red;
-}
+    .fontRed {
+        color: red;
+    }
 </style>
 
 <!DOCTYPE html>
@@ -104,9 +100,9 @@ if(strlen($_SESSION['login'])==0) {
                 <!--  Si on a une erreur, on l'affiche ici -->
                 <!--  Si on a un message, on l'affiche ici -->
                 <?php
-                    if ($updateStatusMsg!=""){
-                        echo "<p class='".$statusClass."'>".$updateStatusMsg."</p>";
-                }?>
+                if ($updateStatusMsg != "") {
+                    echo "<p class='" . $statusClass . "'>" . $updateStatusMsg . "</p>";
+                } ?>
             </div>
             <!--On insere le formulaire de recuperation-->
             <div class="row">
@@ -130,8 +126,7 @@ if(strlen($_SESSION['login'])==0) {
 
                         <div class="form-group">
                             <label>Code de vérification</label>
-                            <input type="text" name="vercode" required style="height:25px;"
-                                required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                            <input type="text" name="vercode" required style="height:25px;" required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
                         </div>
 
                         <button id="submitBTN" type="submit" name="change" class="btn btn-info">Enregistrer</button>
@@ -149,43 +144,43 @@ if(strlen($_SESSION['login'])==0) {
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src='js-library.js'></script>
     <script>
-    const form = document.querySelector("form");
-    const currentPasswordField = document.getElementById("currentPassword");
-    const newPasswordField = document.getElementById("newPassword");
-    const passwordConfirmField = document.getElementById("passwordConfirm");
-    const buttonSubmit = document.getElementById("submitBTN");
+        const form = document.querySelector("form");
+        const currentPasswordField = document.getElementById("currentPassword");
+        const newPasswordField = document.getElementById("newPassword");
+        const passwordConfirmField = document.getElementById("passwordConfirm");
+        const buttonSubmit = document.getElementById("submitBTN");
 
-    buttonSubmit.disabled = true;
-    let isCurrentPassValid = false;
-    let isNewPassConfirmed = false;
+        buttonSubmit.disabled = true;
+        let isCurrentPassValid = false;
+        let isNewPassConfirmed = false;
 
-    form.addEventListener("submit", function(event) {
-        event.preventDefault()
-    });
+        form.addEventListener("submit", function(event) {
+            event.preventDefault()
+        });
 
-    currentPasswordField.addEventListener('input', debounce(100, () => {
-        isCurrentPassValid = checkStringValidy(currentPasswordField.value, /^.+$/, 6)
-    }, () => {
-        enableSubmitButton(buttonSubmit, [isCurrentPassValid, isNewPassConfirmed])
-    }));
+        currentPasswordField.addEventListener('input', debounce(100, () => {
+            isCurrentPassValid = checkStringValidy(currentPasswordField.value, /^.+$/, 6)
+        }, () => {
+            enableSubmitButton(buttonSubmit, [isCurrentPassValid, isNewPassConfirmed])
+        }));
 
-    newPasswordField.addEventListener('input', debounce(100, () => {
-        isNewPassConfirmed = valid(newPasswordField, passwordConfirmField)
-    }, () => {
-        enableSubmitButton(buttonSubmit, [isCurrentPassValid, isNewPassConfirmed])
-    }));
+        newPasswordField.addEventListener('input', debounce(100, () => {
+            isNewPassConfirmed = valid(newPasswordField, passwordConfirmField)
+        }, () => {
+            enableSubmitButton(buttonSubmit, [isCurrentPassValid, isNewPassConfirmed])
+        }));
 
-    passwordConfirmField.addEventListener('input', debounce(100, () => {
-        isNewPassConfirmed = valid(newPasswordField, passwordConfirmField)
-    }, () => {
-        enableSubmitButton(buttonSubmit, [isCurrentPassValid, isNewPassConfirmed])
-    }));
+        passwordConfirmField.addEventListener('input', debounce(100, () => {
+            isNewPassConfirmed = valid(newPasswordField, passwordConfirmField)
+        }, () => {
+            enableSubmitButton(buttonSubmit, [isCurrentPassValid, isNewPassConfirmed])
+        }));
 
-    buttonSubmit.addEventListener('click', () => {
-        if (isCurrentPassValid && isNewPassConfirmed) {
-            form.submit();
-        }
-    })
+        buttonSubmit.addEventListener('click', () => {
+            if (isCurrentPassValid && isNewPassConfirmed) {
+                form.submit();
+            }
+        })
     </script>
 </body>
 

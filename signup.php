@@ -1,5 +1,4 @@
 <?php
-
 // On récupère la session courante
 session_start();
 
@@ -17,10 +16,10 @@ if (isset($_POST["vercode"])) {
     } else {
 
         if (
-            areValuesSet($_POST['name'], $_POST['phone'], $_POST['email'], $_POST['password']) &&
-            areValuesNotEmpty($_POST['name'], $_POST['phone'], $_POST['email'], $_POST['password']) &&
-            checkStringValidy($_POST['name'],"/^[a-zA-Z]+ [a-zA-Z]+$/", 2) && checkStringValidy($_POST['phone'],"/^\d{10}$/", 10,10)&&
-            checkStringValidy($_POST['email'],"/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/", 10, 50)&&checkStringValidy($_POST['password'], "/^.+$/", 6)
+            (isset($_POST['name']) && isset($_POST['phone']) && isset($_POST['email']) && isset($_POST['password'])) &&
+            ($_POST['name'] !== null && $_POST['phone'] !== null && $_POST['email'] !== null && $_POST['password'] !== null) &&
+            checkStringValidy($_POST['name'], "/^[a-zA-Z]+ [a-zA-Z]+$/", 2) && checkStringValidy($_POST['phone'], "/^\d{10}$/", 10, 10) &&
+            checkStringValidy($_POST['email'], "/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/", 10, 50) && checkStringValidy($_POST['password'], "/^.+$/", 6)
         ) {
 
             try {
@@ -168,8 +167,7 @@ function lastInsertId($dbCo)
 
                         <div class="form-group">
                             <label>Code de vérification</label>
-                            <input type="text" name="vercode" required style="height:25px;"
-                                required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
+                            <input type="text" name="vercode" required style="height:25px;" required>&nbsp;&nbsp;&nbsp;<img src="captcha.php">
                         </div>
 
                         <button id="submitBTN" type="submit" name="register" class="btn btn-info">Enregistrer</button>
@@ -191,80 +189,80 @@ function lastInsertId($dbCo)
     <script src='js-library.js'></script>
 
     <script type="text/javascript">
-    // On cree une fonction valid() sans paramètre qui renvoie 
-    // TRUE si les mots de passe saisis dans le formulaire sont identiques
-    // FALSE sinon
+        // On cree une fonction valid() sans paramètre qui renvoie 
+        // TRUE si les mots de passe saisis dans le formulaire sont identiques
+        // FALSE sinon
 
-    const form = document.querySelector("form");
-    const nameField = document.getElementById("name");
-    const phoneField = document.getElementById("phone");
-    const emailField = document.getElementById("emailField");
-    const passField = document.getElementById("password");
-    const passFieldConfirm = document.getElementById("passwordConfirm");
-    const buttonSubmit = document.getElementById("submitBTN");
-    let isNameValid = false;
-    let isPhoneValid = false;
-    let passIsValid = false;
-    let emailIsvalid = false;
+        const form = document.querySelector("form");
+        const nameField = document.getElementById("name");
+        const phoneField = document.getElementById("phone");
+        const emailField = document.getElementById("emailField");
+        const passField = document.getElementById("password");
+        const passFieldConfirm = document.getElementById("passwordConfirm");
+        const buttonSubmit = document.getElementById("submitBTN");
+        let isNameValid = false;
+        let isPhoneValid = false;
+        let passIsValid = false;
+        let emailIsvalid = false;
 
 
-    buttonSubmit.disabled = true;
+        buttonSubmit.disabled = true;
 
-    form.addEventListener("submit", function(event) {
-        event.preventDefault()
-    });
+        form.addEventListener("submit", function(event) {
+            event.preventDefault()
+        });
 
-    nameField.addEventListener('input', debounce(100, () => {
-        isNameValid = checkStringValidy(nameField.value, /^[a-zA-Z]+ [a-zA-Z]+$/, 2)
-    }, () => {
-        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
-    }));
+        nameField.addEventListener('input', debounce(100, () => {
+            isNameValid = checkStringValidy(nameField.value, /^[a-zA-Z]+ [a-zA-Z]+$/, 2)
+        }, () => {
+            enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
+        }));
 
-    phoneField.addEventListener('input', debounce(100, () => {
-        isPhoneValid = checkStringValidy(phoneField.value, /^\d{10}$/, 10, 10)
-    }, () => {
-        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
-    }));
+        phoneField.addEventListener('input', debounce(100, () => {
+            isPhoneValid = checkStringValidy(phoneField.value, /^\d{10}$/, 10, 10)
+        }, () => {
+            enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
+        }));
 
-    passField.addEventListener('input', debounce(100, () => {
-        passIsValid = valid(passField, passFieldConfirm)
-    }, () => {
-        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
-    }));
+        passField.addEventListener('input', debounce(100, () => {
+            passIsValid = valid(passField, passFieldConfirm)
+        }, () => {
+            enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
+        }));
 
-    passFieldConfirm.addEventListener('input', debounce(100, () => {
-        passIsValid = valid(passField, passFieldConfirm)
-    }, () => {
-        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
-    }));
+        passFieldConfirm.addEventListener('input', debounce(100, () => {
+            passIsValid = valid(passField, passFieldConfirm)
+        }, () => {
+            enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid])
+        }));
 
-    emailField.addEventListener('input', debounce(500, isEmailFree));
+        emailField.addEventListener('input', debounce(500, isEmailFree));
 
-    buttonSubmit.addEventListener('click', () => {
-        if (isNameValid && isPhoneValid && passIsValid && emailIsvalid) {
-            form.submit();
-        }
-    })
-
-    // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email (=> in js-library)
-
-    // Cette fonction effectue un appel AJAX vers check_availability.php
-    async function isEmailFree() {
-        try {
-            let response = await fetch('check_availability.php?inputedEmail=' + emailField.value);
-            let data = await response.json();
-            if (data['status'] == 0) {
-                emailIsvalid = true;
-            } else if (data['status'] == -1) {
-                alert('error linking with database');
-            } else {
-                emailIsvalid = false;
+        buttonSubmit.addEventListener('click', () => {
+            if (isNameValid && isPhoneValid && passIsValid && emailIsvalid) {
+                form.submit();
             }
-        } catch (err) {
-            alert("unkown error");
+        })
+
+        // On cree une fonction avec l'email passé en paramêtre et qui vérifie la disponibilité de l'email (=> in js-library)
+
+        // Cette fonction effectue un appel AJAX vers check_availability.php
+        async function isEmailFree() {
+            try {
+                let response = await fetch('check_availability.php?inputedEmail=' + emailField.value);
+                let data = await response.json();
+                if (data['status'] == 0) {
+                    emailIsvalid = true;
+                } else if (data['status'] == -1) {
+                    alert('error linking with database');
+                } else {
+                    emailIsvalid = false;
+                }
+            } catch (err) {
+                alert("unkown error");
+            }
+            enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid]);
         }
-        enableSubmitButton(buttonSubmit, [isNameValid, isPhoneValid, passIsValid, emailIsvalid]);
-    }
     </script>
 </body>
 

@@ -14,7 +14,7 @@ function getUser($dbco, $userMail){
         }else{
             return null;
         }
-    }catch (err){
+    }catch (error){
         return null;
     }
 }
@@ -37,7 +37,7 @@ function getUserIdForPassRecovery($dbco, $email, $phone){
         }else{
             return 0;
         }
-    } catch (err) {
+    } catch (error) {
         return -1;
     }
 }
@@ -55,7 +55,7 @@ function updateUserPassword($dbco, $id, $pass){
         }else{
             return false;
         }
-    }catch (err) {
+    }catch (error) {
         return false;
     }
 } 
@@ -70,7 +70,7 @@ function getBookLentAmount($dbco, $readerId){
         $result =  $statement->fetchAll(PDO::FETCH_ASSOC);
         $bookCount = count($result);
         return $bookCount;
-    }catch (err) {
+    }catch (error) {
         return -1;
     }
 }
@@ -85,7 +85,7 @@ function getBookNotReturned($dbco, $readerId){
         $result =  $statement->fetchAll(PDO::FETCH_ASSOC);
         $bookCount = count($result);
         return $bookCount;
-    }catch (err) {
+    }catch (error) {
         return -1;
     }
 } 
@@ -105,7 +105,7 @@ function selectAdmin($dbco, $adminLogin){
         }else{
             return -1;
         }
-    }catch (err) {
+    }catch (error) {
         return -1;
     }
 }
@@ -125,7 +125,7 @@ function selectUser($dbco, $userMail){
         }else{
             return -1;
         }
-    }catch (err) {
+    }catch (error) {
         return -1;
     }
 }
@@ -145,7 +145,7 @@ function updateUser($dbco, $userId, $userName, $userPhone, $userEmail){
         }else{
             return [-1, null];
         }
-    } catch (err) {
+    } catch (error) {
         return -1;
     }
 }
@@ -163,8 +163,7 @@ function getIssuedBooksHistory($dbco, $userId){
         }else{
             return [1, $result];
         }
-    }catch(err){
+    }catch(error){
         return [-1, NULL];
     }
 }
-?>

@@ -4,7 +4,7 @@ LECTEUR
 
 URL : “”
 Login : dflores1@so-net.ne.jp
-Mot de passe : derptest2
+Mot de passe : derptest
 
 ADMINISTRATION
 
